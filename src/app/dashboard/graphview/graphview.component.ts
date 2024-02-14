@@ -167,16 +167,17 @@ export class GraphviewComponent {
           },
         },
       };
-      // const frames = {
-      //   transition: {
-      //     duration: 5000,
-      //     easing: 'cubic-in-out',
-      //   },
-      //   frame: {
-      //     duration: 5000,
-      //   },
-      // };
-      Plotly?.newPlot('graph-box', newData, layout);
+
+      const frames = {
+        transition: {
+          duration: 5000,
+          easing: 'cubic-in-out',
+        },
+        frame: {
+          duration: 5000,
+        },
+      };
+      Plotly?.newPlot('graph-box', newData, layout, frames);
     }
   }
 }
