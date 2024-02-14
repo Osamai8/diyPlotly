@@ -1,0 +1,41 @@
+.main {
+    height: 40%;
+    max-width: 100%;
+    padding: 1rem;
+}
+
+.table-container {
+    max-height: 200px;
+    overflow: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+thead th {
+    position: -webkit-sticky;
+    /* For Safari */
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2;
+}
+
+td,
+th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+tr:nth-child(odd) {
+    background-color: #fff;
+}

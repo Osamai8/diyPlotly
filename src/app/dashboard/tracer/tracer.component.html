@@ -1,0 +1,58 @@
+<div class="tracker-main">
+    <div class="selector">
+        <mat-card class="ng-card">
+            <mat-form-field appearance="outline" class="mat-se">
+                <mat-label>Graph type</mat-label>
+                <mat-select size="small" [value]="graphType?.type"
+                    (selectionChange)="selectGraphTypeHandler($event.value)">
+                    <mat-option *ngFor="let elem of graphList" [value]="elem.title"
+                        [id]="elem.title">{{elem.title}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </mat-card>
+
+        <mat-card class="ng-card" *ngIf="graphType?.type">
+            <div class="axis">
+                <div class="select" *ngFor="let axis of axisList;let i = index;">
+                    <!-- <p> {{axis.axis|uppercase}}:</p> -->
+                    <mat-form-field appearance="outline" class="mat-se">
+                        <mat-label>{{axis.axis|uppercase}} Axis</mat-label>
+
+                        <mat-select size="small" *ngIf="!isMultiple" name="axis.axis" [value]="axis.value"
+                            (selectionChange)="selectAxisHandler($event.value, axis.axis)">
+                            <mat-option *ngFor="let elem of axis.optionArray" [value]="elem" [id]="elem">
+                                {{elem}}
+                            </mat-option>
+                        </mat-select>
+
+                        <mat-select size="small" *ngIf="isMultiple" multiple name="axis.axis" [value]="axis.value"
+                            (selectionChange)="selectAxisHandler($event.value, axis.axis)">
+                            <mat-option *ngFor="let elem of axis.optionArray" [value]="elem" [id]="elem">
+                                {{elem}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+        </mat-card>
+    </div>
+
+    <mat-card class="ng-card" *ngIf="graphType?.type">
+        <div class="filters">
+            <h4>Filters</h4>
+            <div class="filter" *ngIf="graphType?.type">
+                <div class="select" *ngFor="let filter of filteList;let i = index;">
+                    <!-- <h5>{{filter.name}}:</h5> -->
+                    <mat-form-field appearance="outline" class="mat-se">
+                        <mat-label>{{filter.name}}</mat-label>
+                        <mat-select size="" small [value]="filter.value"
+                            (selectionChange)="selectFilterHandler($event.value, filter.name)">
+                            <mat-option *ngFor="let elem of filter.optionArray" [value]="elem"
+                                [id]="elem">{{elem}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+    </mat-card>
+</div>

@@ -1,0 +1,13 @@
+<div id="main">
+    <div id="col-1">
+        <app-tracer [csvData]="csvData" (selectedAxisValuesCarrier)="selectedAxisValuesCarrier($event)"
+            (selectedGraphTypeCarrier)="selectedGraphTypeCarrier($event)"
+            (filterCarrier)="filterCarrier($event)"></app-tracer>
+    </div>
+
+    <div id="col-2">
+        <app-filereader (csvDataCarries)="csvDataCarries($event)"></app-filereader>
+        <app-graphview [selectedMapType]="selectedMapType" [csvData]="csvData" [selectedAxisValues]="selectedAxisValues"
+            [filter]="filter"></app-graphview>
+    </div>
+</div>

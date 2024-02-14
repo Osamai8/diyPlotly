@@ -1,0 +1,33 @@
+<div class="main">
+    <button mat-raised-button type="button" (click)="fileInput.click()" style="margin-bottom:'0.5rem'">
+        <span>Upload</span>
+        <input #fileInput type="file" accept=".csv,.txt" (change)="handleFileInput($event.target)"
+            style="display:none;" />
+    </button>
+
+
+
+    <div class="table-container">
+        <table *ngIf="csvValue.fields?.length>0" class="w3-table-all w3-tiny">
+            <thead>
+                <tr>
+                    <th>
+                        No.
+                    </th>
+                    <th *ngFor="let data of csvValue.fields;let headIdx=index;" key="headIdx">
+                        {{data}}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of csvValue.data ;let bodyIdx=index;" key="bodyIdx">
+                    <td> {{bodyIdx+1}} </td>
+                    <td *ngFor="let data of csvValue.fields">
+                        {{user[data]}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

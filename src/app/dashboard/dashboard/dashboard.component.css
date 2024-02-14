@@ -1,0 +1,20 @@
+#main {
+    padding: 0;
+    height: 100vh;
+    background: #F2F2F2;
+    display: flex;
+    /* flex-wrap: wrap; */
+}
+
+#col-1 {
+    height: 100vh;
+    max-width: 20%;
+    min-width: 20%;
+    background: #A6A6A6;
+}
+
+#col-2 {
+    height: 100vh;
+    max-width: 80%;
+    min-width: 80%;
+}
