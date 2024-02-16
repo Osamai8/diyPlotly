@@ -31,6 +31,7 @@ export class GraphviewComponent {
   ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['csvData']?.currentValue) this.generateChart();
     if (changes['selectedAxisValues']?.currentValue) {
       const selected = changes['selectedAxisValues']?.currentValue;
       this.axisValue = { ...this.axisValue, ...selected };
@@ -38,6 +39,10 @@ export class GraphviewComponent {
     }
     if (changes['selectedMapType']?.currentValue.length) {
       this.selectedMap = changes['selectedMapType']?.currentValue;
+      if (this.selectedMap === 'Pie') {
+        this.axisValue = { x: [], y: [] };
+        this.filterValue = {};
+      }
       this.generateChart();
     }
     if (changes['filter']?.currentValue) {
@@ -49,8 +54,7 @@ export class GraphviewComponent {
 
   generateChart() {
     if (Object.keys(this.csvData || {}).length > 0) {
-      const selectedyAxis = this.axisValue?.y;
-      const selectedxAxis = this.axisValue?.x;
+      const { x: selectedxAxis, y: selectedyAxis } = this.axisValue;
 
       const selectedGraph = this.selectedMap
         ? graphTypeList.find(
@@ -104,7 +108,6 @@ export class GraphviewComponent {
               pieValue = headers?.[selectedyAxis[0]];
             }
           }
-
           return yAxis.map((y: any, i: number) => {
             return {
               ...(selectedGraph?.type === 'pie'
@@ -152,8 +155,6 @@ export class GraphviewComponent {
       }
       newData = newData?.flatMap((innerArray: any[]) => [...innerArray]);
 
-      console.log(selectedyAxis, selectedxAxis);
-
       var layout = {
         autosize: true,
         xaxis: {
@@ -166,18 +167,29 @@ export class GraphviewComponent {
             text: selectedyAxis.join(', '),
           },
         },
+        legend:
+          selectedGraph?.type !== 'pie'
+            ? {
+                orientation: 'h',
+                x: 0.5,
+                y: 1.2,
+                xanchor: 'center',
+              }
+            : {},
       };
 
-      const frames = {
-        transition: {
-          duration: 5000,
-          easing: 'cubic-in-out',
+      const frames = [
+        {
+          transition: {
+            duration: 5000,
+            easing: 'cubic-in-out',
+          },
+          frame: {
+            duration: 5000,
+          },
         },
-        frame: {
-          duration: 5000,
-        },
-      };
-      Plotly?.newPlot('graph-box', newData, layout, frames);
+      ];
+      Plotly?.newPlot('graph-box', newData, layout);
     }
   }
 }

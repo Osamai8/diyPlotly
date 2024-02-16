@@ -1,7 +1,7 @@
 #main {
     padding: 0;
     height: 100vh;
-    background: #F2F2F2;
+    /* background: #F2F2F2; */
     display: flex;
     /* flex-wrap: wrap; */
 }

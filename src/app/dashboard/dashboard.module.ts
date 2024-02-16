@@ -8,10 +8,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
-
+import { NzTabsModule } from 'ng-zorro-antd/tabs';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzUploadModule } from 'ng-zorro-antd/upload';
+import { NzCardModule } from 'ng-zorro-antd/card';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -28,6 +32,13 @@ import { MatCardModule } from '@angular/material/card';
     MatIconModule,
     MatTabsModule,
     MatCardModule,
+    NzTabsModule,
+    NzSelectModule,
+    NzButtonModule,
+    NzUploadModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NzCardModule,
   ],
   exports: [],
 })

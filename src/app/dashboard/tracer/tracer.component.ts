@@ -6,7 +6,6 @@ import {
   SimpleChanges,
   EventEmitter,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { IGraphTypes, graphTypeList } from 'src/assets/dashboard.assets';
 
 @Component({
@@ -22,7 +21,6 @@ export class TracerComponent {
   @Output() filterCarrier = new EventEmitter();
 
   axisValues: any = { x: [], y: [], z: [] };
-  axisType: any[] = ['x', 'y', 'z'];
   axisList: any[] = [];
   listOfSelectedValue: string[] = ['Name'];
   graphHeaders: string[] = [];
@@ -33,7 +31,73 @@ export class TracerComponent {
   filteList: any[] = [];
   graphList: any[] = [];
 
+  fieldList: any[] = [];
+  // k = [
+  //   {
+  //     group: 'axis',
+  //     title: 'Axis',
+  //     child: [
+  //       {
+  //         name: 'x',
+  //         optionArray: this.graphHeaders,
+  //         title: 'X',
+  //         placeholder: 'X',
+  //         multiple: true,
+  //       },
+  //       {
+  //         name: 'y',
+  //         optionArray: this.graphHeaders,
+  //         title: 'Y',
+  //         placeholder: 'Y',
+  //         multiple: true,
+  //       },
+  //       {
+  //         name: 'z',
+  //         optionArray: this.graphHeaders,
+  //         title: 'Z',
+  //         placeholder: 'Z',
+  //         multiple: true,
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     group: 'filter',
+  //     title: 'Filter',
+  //     child: [
+  //       {
+  //         name: 'opacity',
+  //         optionArray: this.graphHeaders,
+  //         title: '',
+  //         placeholder: 'Opacity',
+  //         multiple: false,
+  //       },
+  //       {
+  //         name: 'size',
+  //         optionArray: this.graphHeaders,
+  //         title: '',
+  //         placeholder: 'Size',
+  //         multiple: false,
+  //       },
+  //     ],
+  //   },
+  // ];
+
   ngOnInit(): void {
+    // graphTypeList &&
+    //   this.fieldList.push({
+    //     group: 'graph',
+    //     title: 'Graph',
+    //     child: [
+    //       {
+    //         name: 'graphType',
+    //         optionArray: graphTypeList?.map((elem: any) => elem.title),
+    //         title: 'Graph Type',
+    //         placeholder: 'Select Graph',
+    //         multiple: false,
+    //         onChange: this.selectGraphTypeHandler,
+    //       },
+    //     ],
+    //   });
     this.graphList = graphTypeList;
   }
 
@@ -47,7 +111,27 @@ export class TracerComponent {
     }
   }
   createAxis() {
-    this.axisList = this.axisType
+    // this.fieldList.push({
+    //   group: 'axis',
+    //   title: 'Axis',
+    //   child: Object.keys(this.axisValues)
+    //     .map((axis: any, index: number) => {
+    //       if (index + 1 <= this.graphType.axisCount) {
+    //         return {
+    //           name: axis,
+    //           optionArray: this.graphHeaders?.map((elem: string) => elem),
+    //           title: axis.toUpperCase(),
+    //           placeholder: axis.toUpperCase(),
+    //           multiple: true,
+    //           value: this.axisValues[axis],
+    //           onChange: this.selectAxisHandler,
+    //         };
+    //       }
+    //       return;
+    //     })
+    //     .filter((elem: any) => Boolean(elem)),
+    // });
+    this.axisList = Object.keys(this.axisValues)
       .map((axis: any, index: number) => {
         if (index + 1 <= this.graphType.axisCount) {
           return {
@@ -75,10 +159,14 @@ export class TracerComponent {
     this.selectedAxisValuesCarrier.emit({ [axis]: value });
   }
   selectGraphTypeHandler(value: any) {
-    this.isMultiple = value !== 'pie';
+    this.isMultiple = value !== 'Pie';
     this.graphType = graphTypeList.find(
       (elem: IGraphTypes) => elem.title === value
     );
+    if (value === 'Pie') {
+      this.axisValues = { x: [], y: [], z: [] };
+      this.filterValues = { Opacity: '', Size: '' };
+    }
     this.createAxis();
     this.selectedGraphTypeCarrier.emit(value);
   }
