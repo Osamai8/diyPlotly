@@ -6,8 +6,8 @@
                 style="display:none;" multiple="false" />
         </button>
     </div>
-    <nz-tabset [(nzSelectedIndex)]="index" nzType="editable-card" nzHideAdd (nzClose)="closeTab($event)"
-        (nzSelectedIndexChange)="handleTabChange($event)">
+    <nz-tabset *ngIf="tabs.length" [(nzSelectedIndex)]="index" nzType="editable-card" (nzAdd)="fileInput.click()"
+        (nzClose)="closeTab($event)" (nzSelectedIndexChange)="handleTabChange($event)">
         <nz-tab *ngFor="let tab of tabs; let i = index" [nzClosable]="i >=0" [nzTitle]="tab.title">
             <!-- table component swith based on tab changed -->
             <div class="table-container">
