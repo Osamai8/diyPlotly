@@ -1,12 +1,13 @@
 import {
   Component,
   Input,
-  OnInit,
   Output,
   SimpleChanges,
   EventEmitter,
 } from '@angular/core';
 import { IGraphTypes, graphTypeList } from 'src/assets/dashboard.assets';
+import { copyArrayItem, moveItemInArray } from '@angular/cdk/drag-drop';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-tracer',
@@ -14,7 +15,7 @@ import { IGraphTypes, graphTypeList } from 'src/assets/dashboard.assets';
   styleUrls: ['./tracer.component.css'],
 })
 export class TracerComponent {
-  constructor() {}
+  constructor(private message: NzMessageService) {}
   @Input() csvData: any = {};
   @Output() selectedAxisValuesCarrier = new EventEmitter();
   @Output() selectedGraphTypeCarrier = new EventEmitter();
@@ -27,110 +28,32 @@ export class TracerComponent {
   isMultiple: boolean = true;
   graphType: any = {};
   filterType = ['Opacity', 'Size'];
-  filterValues: any = { Opacity: '', Size: '' };
+  filterValues: any = { Opacity: [], Size: [] };
   filteList: any[] = [];
   graphList: any[] = [];
-
   fieldList: any[] = [];
-  // k = [
-  //   {
-  //     group: 'axis',
-  //     title: 'Axis',
-  //     child: [
-  //       {
-  //         name: 'x',
-  //         optionArray: this.graphHeaders,
-  //         title: 'X',
-  //         placeholder: 'X',
-  //         multiple: true,
-  //       },
-  //       {
-  //         name: 'y',
-  //         optionArray: this.graphHeaders,
-  //         title: 'Y',
-  //         placeholder: 'Y',
-  //         multiple: true,
-  //       },
-  //       {
-  //         name: 'z',
-  //         optionArray: this.graphHeaders,
-  //         title: 'Z',
-  //         placeholder: 'Z',
-  //         multiple: true,
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     group: 'filter',
-  //     title: 'Filter',
-  //     child: [
-  //       {
-  //         name: 'opacity',
-  //         optionArray: this.graphHeaders,
-  //         title: '',
-  //         placeholder: 'Opacity',
-  //         multiple: false,
-  //       },
-  //       {
-  //         name: 'size',
-  //         optionArray: this.graphHeaders,
-  //         title: '',
-  //         placeholder: 'Size',
-  //         multiple: false,
-  //       },
-  //     ],
-  //   },
-  // ];
 
   ngOnInit(): void {
-    // graphTypeList &&
-    //   this.fieldList.push({
-    //     group: 'graph',
-    //     title: 'Graph',
-    //     child: [
-    //       {
-    //         name: 'graphType',
-    //         optionArray: graphTypeList?.map((elem: any) => elem.title),
-    //         title: 'Graph Type',
-    //         placeholder: 'Select Graph',
-    //         multiple: false,
-    //         onChange: this.selectGraphTypeHandler,
-    //       },
-    //     ],
-    //   });
     this.graphList = graphTypeList;
   }
-
   ngOnChanges(changes: SimpleChanges) {
     if (changes?.['csvData']?.currentValue) {
       this.graphHeaders =
         changes?.['csvData'].currentValue?.results?.meta.fields;
+      if (
+        changes?.['csvData']?.currentValue?.id !==
+        changes?.['csvData']?.previousValue?.id
+      ) {
+        this.filterValues = { Opacity: [], Size: [] };
+        this.axisValues = { x: [], y: [], z: [] };
+      }
       if (this.graphHeaders && this.graphType) {
         this.createAxis();
       }
     }
   }
+
   createAxis() {
-    // this.fieldList.push({
-    //   group: 'axis',
-    //   title: 'Axis',
-    //   child: Object.keys(this.axisValues)
-    //     .map((axis: any, index: number) => {
-    //       if (index + 1 <= this.graphType.axisCount) {
-    //         return {
-    //           name: axis,
-    //           optionArray: this.graphHeaders?.map((elem: string) => elem),
-    //           title: axis.toUpperCase(),
-    //           placeholder: axis.toUpperCase(),
-    //           multiple: true,
-    //           value: this.axisValues[axis],
-    //           onChange: this.selectAxisHandler,
-    //         };
-    //       }
-    //       return;
-    //     })
-    //     .filter((elem: any) => Boolean(elem)),
-    // });
     this.axisList = Object.keys(this.axisValues)
       .map((axis: any, index: number) => {
         if (index + 1 <= this.graphType.axisCount) {
@@ -143,7 +66,7 @@ export class TracerComponent {
         }
         return;
       })
-      .filter((elem: any) => Boolean(elem));
+      .filter(Boolean);
     this.filteList = this.filterType.map((filter: string) => {
       return {
         name: filter,
@@ -152,12 +75,6 @@ export class TracerComponent {
       };
     });
   }
-  selectAxisHandler(target: any, axis: 'x' | 'y' | 'z') {
-    const value: string[] = Array.isArray(target) ? target : [target];
-    this.axisValues = { ...this.axisValues, [axis]: value };
-
-    this.selectedAxisValuesCarrier.emit({ [axis]: value });
-  }
   selectGraphTypeHandler(value: any) {
     this.isMultiple = value !== 'Pie';
     this.graphType = graphTypeList.find(
@@ -165,13 +82,86 @@ export class TracerComponent {
     );
     if (value === 'Pie') {
       this.axisValues = { x: [], y: [], z: [] };
-      this.filterValues = { Opacity: '', Size: '' };
+      this.filterValues = { Opacity: [], Size: [] };
     }
     this.createAxis();
     this.selectedGraphTypeCarrier.emit(value);
   }
-  selectFilterHandler(target: any, type: string) {
-    this.filterValues = { ...this.filterValues, [type]: target };
-    this.filterCarrier.emit({ [type]: target });
+
+  no() {
+    return false;
+  }
+
+  removeClonedNdEmit(
+    currentContainer: string,
+    type: 'filter' | 'axis' | '' = ''
+  ) {
+    if (!type) return;
+    let variableByType: any =
+      type === 'axis' ? this.axisValues : this.filterValues;
+    const clonedValue = [...variableByType[currentContainer]];
+
+    variableByType = {
+      ...variableByType,
+      [currentContainer]: [...new Set(clonedValue)],
+    };
+
+    if (type === 'axis') {
+      this.selectedAxisValuesCarrier.emit({
+        [currentContainer]: variableByType[currentContainer],
+      });
+    }
+    if (type === 'filter') {
+      this.filterCarrier.emit({
+        [currentContainer]: variableByType[currentContainer][0],
+      });
+    }
+  }
+
+  drop(event: any, type: 'filter' | 'axis' | '' = '') {
+    const variableRef = type === 'filter' ? this.filterValues : this.axisValues;
+    const currentContainer: string = event.container.id;
+
+    if (event.isPointerOverContainer) {
+      if (event.previousContainer === event.container) {
+        moveItemInArray(
+          event.container.data,
+          event.previousIndex,
+          event.currentIndex
+        );
+      } else {
+        if (type === 'filter' && event.container.data.length) {
+          this.message.create(
+            'error',
+            `Can only select one field for Size/Opacity`
+          );
+          return;
+        }
+
+        copyArrayItem(
+          event.previousContainer.data,
+          event.container.data,
+          event.previousIndex,
+          event.currentIndex
+        );
+        if (currentContainer !== 'headerList') {
+          this.removeClonedNdEmit(currentContainer, type);
+        }
+      }
+    } else {
+      if (currentContainer !== 'headerList') {
+        variableRef[currentContainer] = variableRef[currentContainer].filter(
+          (elem: string, index: number) => event.previousIndex !== index
+        );
+        if (type === 'axis')
+          this.selectedAxisValuesCarrier.emit({
+            [currentContainer]: variableRef[currentContainer],
+          });
+        if (type === 'filter')
+          this.filterCarrier.emit({
+            [currentContainer]: variableRef[currentContainer][0] || '',
+          });
+      }
+    }
   }
 }

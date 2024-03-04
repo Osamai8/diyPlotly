@@ -16,12 +16,18 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzMessageModule } from 'ng-zorro-antd/message';
+import { SearchbarComponent } from './searchbar/searchbar.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 @NgModule({
   declarations: [
     DashboardComponent,
     FilereaderComponent,
     GraphviewComponent,
     TracerComponent,
+    SearchbarComponent,
   ],
   imports: [
     CommonModule,
@@ -39,6 +45,10 @@ import { NzCardModule } from 'ng-zorro-antd/card';
     FormsModule,
     ReactiveFormsModule,
     NzCardModule,
+    NzInputModule,
+    NzIconModule,
+    DragDropModule,
+    NzMessageModule,
   ],
   exports: [],
 })

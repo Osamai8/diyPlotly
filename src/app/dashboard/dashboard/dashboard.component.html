@@ -6,6 +6,7 @@
     </div>
 
     <div id="col-2">
+        <!-- <app-searchbar></app-searchbar> -->
         <app-filereader (csvDataCarries)="csvDataCarries($event)"></app-filereader>
         <app-graphview [selectedMapType]="selectedMapType" [csvData]="csvData" [selectedAxisValues]="selectedAxisValues"
             [filter]="filter"></app-graphview>

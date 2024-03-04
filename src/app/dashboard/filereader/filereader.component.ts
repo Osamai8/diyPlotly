@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output, SimpleChange } from '@angular/core';
 import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
+import { VoiceRecognitionService } from 'src/app/services/VR/voice-recognition.service';
 
 @Component({
   selector: 'app-filereader',
@@ -7,7 +8,10 @@ import { Papa, ParseConfig, ParseResult } from 'ngx-papaparse';
   styleUrls: ['./filereader.component.css'],
 })
 export class FilereaderComponent {
-  constructor(private papaParse: Papa) {}
+  constructor(
+    private papaParse: Papa,
+    private voiceRecognition: VoiceRecognitionService
+  ) {}
   @Output() csvDataCarries = new EventEmitter();
   // tabs
   index = 0;
@@ -38,7 +42,14 @@ export class FilereaderComponent {
     },
   };
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (localStorage.getItem('tabs')) {
+      this.tabs = JSON.parse(localStorage.getItem('tabs') || ([] as any));
+
+      this.tabs.length > 0 &&
+        this.csvDataCarries.emit({ ...this.tabs[0].data, id: this.tabs[0].id });
+    }
+  }
 
   handleFileInput(target: any) {
     if (!target.files) return;
@@ -50,17 +61,23 @@ export class FilereaderComponent {
     data: { results: any; headers: any },
     tableData: { data: any[]; fields: string[] }
   ): void {
-    this.tabs.push({ title: fileName || 'Chart', data, tableData });
+    const csvObj = {
+      title: fileName || 'Chart',
+      data,
+      tableData,
+      id: Math.random(),
+    };
+    this.tabs.push(csvObj);
     this.index = this.tabs.length - 1;
-    this.csvDataCarries.emit(data);
+    localStorage.setItem('tabs', JSON.stringify(this.tabs));
+    this.csvDataCarries.emit({ ...data, id: csvObj.id });
   }
 
   closeTab({ index }: { index: number }): void {
     this.tabs.splice(index, 1);
-    console.log(index);
   }
 
   handleTabChange(e: number) {
-    this.csvDataCarries.emit(this.tabs[e].data);
+    this.csvDataCarries.emit({ ...this.tabs[e].data, id: this.tabs[e].id });
   }
 }

@@ -14,7 +14,7 @@ table {
     border-collapse: collapse;
     font-family: arial, sans-serif;
     border-collapse: collapse;
-    font-size: 13px;
+    font-size: 11px;
 }
 
 thead th {
@@ -29,7 +29,7 @@ td,
 th {
     border: 1px solid #dddddd;
     text-align: left;
-    padding: 8px;
+    padding: 3px 6px;
 }
 
 tr:nth-child(even) {
@@ -38,4 +38,9 @@ tr:nth-child(even) {
 
 tr:nth-child(odd) {
     background-color: #fff;
+}
+
+.isRecording {
+    background: rgb(231, 122, 122) !important;
+    border-color: rgb(231, 122, 122) !important;
 }

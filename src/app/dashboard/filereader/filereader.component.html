@@ -1,5 +1,5 @@
 <div class="main">
-    <div style="margin-bottom: 16px;">
+    <div style="margin-bottom: 1rem;display: flex; width: 100%;">
         <button nz-button nzType="default" type="button" (click)="fileInput.click()" style="margin-bottom:'0.5rem'">
             <span>Import</span>
             <input #fileInput type="file" accept=".csv,.txt" (change)="handleFileInput($event.target)"

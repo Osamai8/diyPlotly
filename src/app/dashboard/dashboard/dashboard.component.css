@@ -11,6 +11,7 @@
     max-width: 20%;
     min-width: 20%;
     background: #A6A6A6;
+    overflow-y: auto;
 }
 
 #col-2 {

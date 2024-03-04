@@ -1,0 +1,11 @@
+<div style="width: 100%; padding: 1rem;">
+    <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton">
+        <input type="text" #voice nz-input placeholder="input search text" [(ngModel)]="results" />
+    </nz-input-group>
+    <ng-template #suffixIconButton>
+        <button nz-button nzType="primary" [class.isRecording]="isRecording==='recording'" nzSearch
+            (click)="startListening()">
+            <span nz-icon nzType="audio" class="audio-icon" nzTheme="fill"></span>
+        </button>
+    </ng-template>
+</div>

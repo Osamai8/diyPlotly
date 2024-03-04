@@ -2,6 +2,7 @@
                 (ngModelChange)="selectGraphTypeHandler($event)">
                 <nz-option *ngFor="let elem of graphList" [nzLabel]="elem.title" [nzValue]="elem.title"></nz-option>
             </nz-select> -->
+
 <div class="tracker-main">
     <div class="selector">
         <mat-card class="ng-card">
@@ -14,64 +15,53 @@
                 </mat-select>
             </mat-form-field>
         </mat-card>
-
-        <mat-card class="ng-card" *ngIf="graphType?.type">
-            <div class="axis">
-                <div class="select" *ngFor="let axis of axisList;let i = index;">
-                    <mat-form-field appearance="outline" class="mat-se">
-                        <mat-label>{{axis.axis|uppercase}} Axis</mat-label>
-
-                        <mat-select size="small" *ngIf="!isMultiple" name="axis.axis" [value]="axis.value"
-                            (selectionChange)="selectAxisHandler($event.value, axis.axis)">
-                            <mat-option *ngFor="let elem of axis.optionArray" [value]="elem" [id]="elem">
-                                {{elem}}
-                            </mat-option>
-                        </mat-select>
-
-                        <mat-select size="small" *ngIf="isMultiple" multiple name="axis.axis" [value]="axis.value"
-                            (selectionChange)="selectAxisHandler($event.value, axis.axis)">
-                            <mat-option *ngFor="let elem of axis.optionArray" [value]="elem" [id]="elem">
-                                {{elem}}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-            </div>
-        </mat-card>
     </div>
-
-    <mat-card class="ng-card" *ngIf="graphType?.type">
-        <div class="filters">
-            <h4>Filters</h4>
-            <div class="filter" *ngIf="graphType?.type">
-                <div class="select" *ngFor="let filter of filteList;let i = index;">
-                    <mat-form-field appearance="outline" class="mat-se">
-                        <mat-label>{{filter.name}}</mat-label>
-                        <mat-select size="" small [value]="filter.value"
-                            (selectionChange)="selectFilterHandler($event.value, filter.name)">
-                            <mat-option *ngFor="let elem of filter.optionArray" [value]="elem"
-                                [id]="elem">{{elem}}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
+    <!-- drag and drop -->
+    <mat-card class="ng-card" *ngIf="graphHeaders?.length && graphType?.title">
+        <div class="container">
+            <h2>Headers</h2>
+            <div cdkDropList [cdkDropListEnterPredicate]="no" id="headerList" #headerList="cdkDropList"
+                [cdkDropListData]="graphHeaders" [cdkDropListConnectedTo]="[xAxisList,yAxisList,opacityList,sizeList]"
+                class="drag-list" (cdkDropListDropped)="drop($event)">
+                <div class="header-item" *ngFor="let item of graphHeaders" cdkDrag>{{item}}</div>
             </div>
+        </div>
+        <br>
+        <div class="container">
+            <h4>X Axis</h4>
+            <div cdkDropList isPointerOverContainer id="x" #xAxisList="cdkDropList" [cdkDropListData]="axisValues.x"
+                [cdkDropListConnectedTo]="[headerList]" class="drag-list axis-box"
+                (cdkDropListDropped)="drop($event,'axis')">
+                <div class="header-item" *ngFor="let item of axisValues.x" cdkDrag>{{item}}</div>
+            </div>
+        </div>
+        <br>
+        <div class="container" [ngStyle]="{'display' : graphType?.type!=='pie' ? '' : 'none'}">
+            <h4>Y Axis</h4>
+            <div cdkDropList #yAxisList="cdkDropList" id="y" [cdkDropListData]="axisValues.y"
+                [cdkDropListConnectedTo]="[headerList]" class="drag-list axis-box"
+                (cdkDropListDropped)="drop($event,'axis')">
+                <div class="header-item" *ngFor="let item of axisValues.y" cdkDrag>{{item}}</div>
+            </div>
+        </div>
+        <br>
+        <div class="container">
+            <h4>Opacity</h4>
+            <div cdkDropList #opacityList="cdkDropList" id="Opacity" [cdkDropListData]="filterValues.Opacity"
+                [cdkDropListConnectedTo]="[headerList]" class="drag-list axis-box"
+                (cdkDropListDropped)="drop($event,'filter')">
+                <div class="header-item" *ngFor="let item of filterValues.Opacity" cdkDrag>{{item}}</div>
+            </div>
+        </div>
+        <br>
+        <div class="container">
+            <h4>Size</h4>
+            <div cdkDropList #sizeList="cdkDropList" id="Size" [cdkDropListData]="filterValues.Size"
+                [cdkDropListConnectedTo]="[headerList]" class="drag-list axis-box"
+                (cdkDropListDropped)="drop($event,'filter')">
+                <div class="header-item" *ngFor="let item of filterValues.Size" cdkDrag>{{item}}</div>
+            </div>
+            <br />
         </div>
     </mat-card>
 </div>
-
-<!-- <form [formGroup]="trackerField" class="tracker-main">
-    <nz-card *ngFor="let elem of fieldList" nzTitle={{elem?.title}}>
-        <div formGroupName={{elem.group}}>
-            <div class="form-group">
-                <div *ngFor="let field of elem.child">
-                    <nz-select style="width: 100%;" nzMode="tags" nzPlaceHolder={{field.placeholder}}
-                        class="form-control" formControlName={{field.name}}>
-                        <nz-option *ngFor="let option of field.optionArray" [nzLabel]="option"
-                            [nzValue]="option"></nz-option>
-                    </nz-select>
-                </div>
-            </div>
-        </div>
-    </nz-card>
-
-</form> -->
