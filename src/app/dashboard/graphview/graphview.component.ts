@@ -5,7 +5,12 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import { IGraphTypes, graphTypeList } from 'src/assets/dashboard.assets';
+import {
+  GRAPH,
+  IGraphTypes,
+  graphTypeList,
+  pieColorPalette,
+} from 'src/assets/dashboard.assets';
 
 declare const Plotly: any;
 
@@ -25,6 +30,22 @@ export class GraphviewComponent {
   selectedMap: string = '';
   axisValue: { x: string[]; y: string[] } = { x: [], y: [] };
   filterValue: any = {};
+  PIE_GRID_COL_COUNT = 2;
+  isDarkMode = false;
+  lightLayout = {
+    plot_bgcolor: '#FFFFFF',
+    paper_bgcolor: '#FFFFFF',
+    font: {
+      color: '#000000',
+    },
+  };
+  darkLayout = {
+    plot_bgcolor: '#2B2B2B',
+    paper_bgcolor: '#2B2B2B',
+    font: {
+      color: '#FFFFFF',
+    },
+  };
 
   ngOnInit(): void {
     // this.generateStatic();
@@ -38,114 +59,96 @@ export class GraphviewComponent {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['csvData']?.currentValue) {
       this.clearInputValues();
-      this.generateChart();
+      this.configureChart();
     }
     if (changes['selectedAxisValues']?.currentValue) {
       const selected = changes['selectedAxisValues']?.currentValue;
       this.axisValue = { ...this.axisValue, ...selected };
-      this.generateChart();
+      this.configureChart();
     }
     if (changes['selectedMapType']?.currentValue.length) {
       this.selectedMap = changes['selectedMapType']?.currentValue;
-      if (this.selectedMap === 'Pie') {
+      if (this.selectedMap === GRAPH.PIE.type) {
         this.clearInputValues();
       }
-      this.generateChart();
+      this.configureChart();
     }
     if (changes['filter']?.currentValue) {
       const selected = changes['filter']?.currentValue;
       this.filterValue = { ...this.filterValue, ...selected };
-      this.generateChart();
+      this.configureChart();
     }
   }
-  createLayout = (selectedGraph: IGraphTypes | undefined, frames: any[]) => ({
-    autosize: true,
-    xaxis: {
-      title: {
-        text: this.axisValue.x.join(', '),
-      },
-    },
-    yaxis: {
-      title: {
-        text: this.axisValue.y.join(', '),
-      },
-    },
-    legend:
-      selectedGraph?.type !== 'pie'
-        ? {
-            orientation: 'h',
-            x: 0.5,
-            y: 1.2,
-            xanchor: 'center',
-          }
-        : {},
-    hovermode: 'closest',
-    // ...(selectedGraph?.type !== 'pie'
-    //   ? {
-    //       updatemenus: [
-    //         {
-    //           x: 0,
-    //           y: 3, //0
-    //           yanchor: 'top',
-    //           xanchor: 'left',
-    //           showactive: false,
-    //           direction: 'left',
-    //           type: 'buttons',
-    //           pad: { t: 87, r: 10 },
-    //           buttons: [
-    //             {
-    //               method: 'animate',
-    //               args: [
-    //                 null,
-    //                 {
-    //                   mode: 'immediate',
-    //                   fromcurrent: true,
-    //                   transition: { duration: frames?.length > 100 ? 50 : 200 },
-    //                   frame: {
-    //                     duration: frames?.length > 100 ? 10 : 500,
-    //                     redraw: false,
-    //                   },
-    //                 },
-    //               ],
-    //               label: 'Play',
-    //             },
-    //             {
-    //               method: 'animate',
-    //               args: [
-    //                 [null],
-    //                 {
-    //                   mode: 'immediate',
-    //                   transition: { duration: 0 },
-    //                   frame: { duration: 0, redraw: false },
-    //                 },
-    //               ],
-    //               label: 'Pause',
-    //             },
-    //           ],
-    //         },
-    //       ],
-    // sliders: [
-    //   {
-    //     pad: { l: 130, b: -55 }, // -55
-    //     currentvalue: {
-    //       visible: true,
-    //       prefix: 'Frame:',
-    //       xanchor: 'right',
-    //       font: { size: 20, color: '#666' },
-    //     },
-    //     steps: [],
-    //     yanchor: 'top',
-    //     x: 0,
-    //     y: 3,
-    //   },
-    // ],
-    //   }
-    // : {}),
-  });
+  createLayout = (
+    selectedGraph: IGraphTypes | undefined,
+    dataLength: number
+  ) => {
+    if (selectedGraph?.type) {
+      switch (selectedGraph.type) {
+        case GRAPH.COXCOMB.type:
+          return {
+            // title: "Wind Speed Distribution in Laurel, NE",
+            font: { size: 16 },
+            legend: { font: { size: 16 } },
+            polar: {
+              // barmode: "overlay",
+              bargap: 0,
+              radialaxis: { showticklabels: false, visible: false },
+              angularaxis: { showticklabels: false, color: '#ffffff' },
+            },
+            hovermode: 'closest',
+            // colorway: string[], // color pallete
+          };
+        case GRAPH.PIE.type:
+          return {
+            grid: {
+              rows: Math.ceil(dataLength / this.PIE_GRID_COL_COUNT),
+              columns: dataLength > 1 ? this.PIE_GRID_COL_COUNT : 0,
+            },
+            hovermode: 'closest',
+            // colorway: string[], // color pallete
+          };
+        default:
+          return {
+            autosize: true,
+            xaxis: {
+              tickson: 'boundaries',
+              ticklen: 15,
+              showdividers: true,
+              dividercolor: 'grey',
+              dividerwidth: 2,
+              title: {
+                text: this.axisValue.x.join(', '),
+              },
+            },
+            yaxis: {
+              tickson: 'boundaries',
+              ticklen: 15,
+              showdividers: true,
+              dividercolor: 'grey',
+              dividerwidth: 2,
+              title: {
+                text: this.axisValue.y.join(', '),
+              },
+            },
+            barmode: selectedGraph?.mode || '',
+            template: 'none',
+            hovermode: 'closest',
+            // colorway: string[], // color pallete,
+            // plot_bgcolor: '#2B2B2B',
+            // paper_bgcolor: '#2B2B2B',
+            // font: {
+            //   color: '#FFFFFF',
+            // },
+          };
+      }
+    }
+    return {};
+  };
 
   createFrames = (fullData: any) => {
     const framesArray: any[] = [];
-    if (this.selectedMap?.toLowerCase() === 'pie') return framesArray;
+    if (this.selectedMap?.toLowerCase() === GRAPH.PIE.type) return framesArray;
     if (fullData[0]?.x.length && fullData[0]?.y.length) {
       fullData.forEach(
         (data: { x: (string | number)[]; y: (string | number)[] }) => {
@@ -221,14 +224,48 @@ export class GraphviewComponent {
     return { opacityFilter, sizeFilter };
   }
 
-  generateChart() {
+  createPieChartVariantsData(
+    labels: any[],
+    values: any[],
+    currentGraph: IGraphTypes | undefined
+  ): { labels: any[]; values: any[]; colors: string[] } {
+    if (!values) return { values, labels, colors: [] };
+    const clonedValues = [...values];
+    const clonedLabels = labels ? [...labels] : [];
+    const colorPalette: string[] = [];
+    if (currentGraph?.mode === GRAPH.ELECTION_DONUT.mode) {
+      const sum: number = values.reduce(
+        (accumulator, currentValue, i: number) => {
+          colorPalette.push(pieColorPalette[i % pieColorPalette.length]);
+          return (accumulator += /^\d/.test(currentValue) ? +currentValue : 0);
+        },
+        0
+      );
+
+      const get45percent = sum * 0.67;
+      clonedValues?.push(get45percent.toString()) || [];
+      clonedLabels?.push('') || [];
+      colorPalette.push('#FFFFFF');
+
+      return {
+        values: clonedValues,
+        labels: clonedLabels,
+        colors: colorPalette,
+      };
+    }
+    return {
+      values: values,
+      labels: labels,
+      colors: colorPalette,
+    };
+  }
+
+  configureChart() {
     const {
       csvData,
       axisValue,
       selectedMap,
       filterValue,
-      createFrames,
-      createLayout,
       createFiltersValues,
     } = this;
     if (Object.keys(csvData || {}).length > 0 && this.selectedMap) {
@@ -247,42 +284,73 @@ export class GraphviewComponent {
       );
 
       const newData = selectedxAxis
-        ?.map((x: any) => {
+        ?.map((x: any, index: number) => {
           const yAxis = selectedyAxis.length
             ? selectedyAxis
             : [selectedyAxis[0]];
 
-          // const containsOnlyNum = headers?.[x]?.every((item: string) =>
-          //   /^-?\d*\.?\d+$/.test(item)
-          // );
-          let pieValue: any[] = headers?.[selectedyAxis[0]];
-          let pieLabels: any[] = headers?.[x];
+          // for pie type only
+          if (selectedGraph?.type === GRAPH.PIE.type) {
+            // const containsOnlyNum = headers?.[x]?.every((item: string) =>
+            //   /^-?\d*\.?\d+$/.test(item)
+            // );
+            let pieValue: any[] = headers?.[x];
+            let pieLabels: any[] = headers?.[x];
 
-          // if (selectedGraph?.type === 'pie' && containsOnlyNum) {
-          //   [pieLabels, pieValue] = [pieValue, pieLabels];
-          // }
+            const {
+              values,
+              labels,
+              colors: piePalette,
+            } = this.createPieChartVariantsData(
+              pieValue,
+              pieLabels,
+              selectedGraph
+            );
+            return {
+              hoverinfo: 'label+percent+name',
+              textinfo: 'none',
+              hovertemplate: labels.map((elem: string) =>
+                elem.length
+                  ? '%{label}: %{value} units<br>Percentage: %{percent}'
+                  : ''
+              ),
+
+              values: values,
+              labels: labels,
+              hole: selectedGraph.hole || 0,
+              type: selectedGraph?.type,
+              name: x,
+              marker: selectedGraph?.marker || {
+                colors: piePalette,
+              },
+              domain: {
+                column: index % 2,
+                row: Math.floor(index / 2),
+              },
+              rotation: 110, //need to be same for election chart
+            };
+          }
+          if (selectedGraph?.type === GRAPH.COXCOMB.type) {
+            return {
+              r: headers?.[x] || [],
+              // theta: [', 'N-E', 'East', 'S-E', 'South', 'S-W', 'West', 'N-W'],
+              name: x,
+              marker: selectedGraph?.marker || {},
+              type: selectedGraph.type,
+              hoverinfo: 'all',
+            };
+          }
 
           return yAxis.map((y: any, i: number) => ({
-            ...(selectedGraph?.type === 'pie'
-              ? {
-                  ...{
-                    values: pieValue,
-                    labels: pieLabels,
-                  },
-                }
-              : {
-                  ...{
-                    x: headers?.[x] || [],
-                    y: headers?.[y] || [],
-                  },
-                }),
+            x: headers?.[x] || [],
+            y: headers?.[y] || [],
             type: selectedGraph?.type,
             mode: selectedGraph?.mode,
             fill: selectedGraph?.fill,
             name: y,
-            barmode: selectedGraph?.mode,
+            orientation: selectedGraph?.orientation || '',
             autobinx: false,
-            ...(sizeFilter?.length && selectedGraph?.type == 'bar'
+            ...(sizeFilter?.length && selectedGraph?.type === GRAPH.BAR.type
               ? { width: sizeFilter.map((elem: number) => elem / 25) }
               : {}),
             marker: {
@@ -299,30 +367,48 @@ export class GraphviewComponent {
           }));
         })
         .flat();
-
-      // newData = newData?.flatMap((innerArray: any[]) => [...innerArray]);
-      const frames: any = []; // createFrames(newData);
-      const layout: any = createLayout(selectedGraph, frames);
-      // if (frames.length) {
-      //   layout.sliders[0].steps = frames.map((frame: any) => ({
-      //     label: frame.name,
-      //     method: 'animate',
-      //     args: [
-      //       [frame.name],
-      //       {
-      //         mode: 'immediate',
-      //         transition: { duration: 0 },
-      //         frame: { duration: 0, redraw: false },
-      //       },
-      //     ],
-      //   }));
-      // }
-      Plotly?.newPlot('graph-box', {
-        data: newData,
-        layout,
-        // frames,
-        config: { showSendToCloud: true },
-      });
+      this.plotGraph(newData, selectedGraph);
     }
+  }
+  togglechartTheme() {
+    if (this.isDarkMode) Plotly.relayout('graph-box', this.lightLayout);
+    else Plotly.relayout('graph-box', this.darkLayout);
+    this.isDarkMode = !this.isDarkMode;
+  }
+  addOnConfigs = {
+    showSendToCloud: true,
+    editable: true,
+    displaylogo: false,
+    showEditInChartStudio: false,
+    template: 'plotly_dark',
+    responsive: true,
+    modeBarButtonsToRemove: ['lasso2d', 'select2d', 'zoom2d'],
+    // modeBarButtonsToAdd: [
+    //   {
+    //     name: 'color toggler',
+    //     icon: 'k',
+    //     click: this.togglechartTheme,
+    //   },
+    // ],
+  };
+
+  async plotGraph(mapData: any, selectedGraphObj: IGraphTypes | undefined) {
+    // const frames: any = []; // createFrames(newData);
+    const layout: any = this.createLayout(selectedGraphObj, mapData.length);
+    const plotResponse = await Plotly?.newPlot('graph-box', {
+      data: mapData,
+      layout,
+      config: this.addOnConfigs,
+    });
+
+    plotResponse.on('plotly_click', (data: any) => {
+      if (selectedGraphObj?.mode === GRAPH.LINE.mode) {
+        var curveNumber = data.points[0].curveNumber;
+        var vals = plotResponse.data.map((_: any, i: number) =>
+          i === curveNumber ? 1 : 0.3
+        );
+        Plotly.restyle(plotResponse, 'opacity', vals);
+      }
+    });
   }
 }

@@ -15,7 +15,7 @@ export class FilereaderComponent {
   @Output() csvDataCarries = new EventEmitter();
   // tabs
   index = 0;
-  tabs: any[] = [];
+  tabs: any = [];
 
   parseOptions: ParseConfig = {
     header: true,
@@ -43,8 +43,10 @@ export class FilereaderComponent {
   };
 
   ngOnInit(): void {
-    if (localStorage.getItem('tabs')) {
-      this.tabs = JSON.parse(localStorage.getItem('tabs') || ([] as any));
+    if (localStorage.getItem('diyGraphTabs')) {
+      this.tabs = JSON.parse(
+        localStorage.getItem('diyGraphTabs') || ([] as any)
+      );
 
       this.tabs.length > 0 &&
         this.csvDataCarries.emit({ ...this.tabs[0].data, id: this.tabs[0].id });
@@ -69,7 +71,7 @@ export class FilereaderComponent {
     };
     this.tabs.push(csvObj);
     this.index = this.tabs.length - 1;
-    localStorage.setItem('tabs', JSON.stringify(this.tabs));
+    localStorage.setItem('diyGraphTabs', JSON.stringify(this.tabs));
     this.csvDataCarries.emit({ ...data, id: csvObj.id });
   }
 
